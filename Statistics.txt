@@ -1,0 +1,12 @@
+****** Relation Data Size *********
+1
+******* Relation Data Map ******
+lineitem&part = #21433
+****** Attribute Data Size ******
+1
+****** Attribute Data Map ******
+lineitem&part l_partkey 200000
+lineitem&part l_shipinstruct 4
+lineitem&part l_shipmode 7
+lineitem&part p_container 40
+lineitem&part p_partkey 200000

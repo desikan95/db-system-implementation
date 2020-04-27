@@ -1,0 +1,36 @@
+#ifndef BIGQ_H
+#define BIGQ_H
+#include <pthread.h>
+#include <cstdlib>
+#include <queue>
+#include <iostream>
+#include "Pipe.h"
+#include "File.h"
+#include "Record.h"
+#include "Comparison.h"
+#include "ComparisonEngine.h"
+#include "DBFile.h"
+
+using namespace std;
+
+struct params{
+	Pipe *in;
+	Pipe *out;
+	OrderMaker *sort_order;
+	int run_length;
+};
+
+class BigQ {
+	params p;
+
+
+public:
+
+	static void* worker_thread(void *arg);
+
+	BigQ (Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen);
+	static void sorting(Page* page, File &file, int number_of_records, int &global, OrderMaker *order);
+	~BigQ ();
+};
+
+#endif

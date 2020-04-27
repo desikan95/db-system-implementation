@@ -1,0 +1,36 @@
+#ifndef BIGQ_H
+#define BIGQ_H
+#include <pthread.h>
+#include <iostream>
+
+#include "File.h"
+#include "Record.h"
+#include "ComparisonEngine.h"
+#include "Pipe.h"
+using namespace std;
+
+class BigQ {
+
+	int number_of_runs;
+	pthread_t worker;
+
+	struct arguments_struct{
+		Pipe *in;
+		Pipe *out;
+		OrderMaker *sort_order;
+		int *runlen;
+	} args;
+
+	//typedef struct arguments_struct arguments;
+
+public:
+
+	BigQ (Pipe &in, Pipe &out, OrderMaker &sortorder, int runlen);
+
+	static void* tpmms_1(void* arguments);
+
+	static void sorting(Page* page, File &file, int number_of_records, int &global, OrderMaker *order);
+	~BigQ ();
+};
+
+#endif

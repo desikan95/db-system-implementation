@@ -1,0 +1,320 @@
+TC1
+
+Number of selects : 1
+Number of joins : 0
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 0
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+Select CNF: 
+	( Att 1 from left record = Att 0 from literal record (String)) 
+
+
+*****************
+Project Operation
+Input Pipe:	0
+Output Pipe: 1
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+Attributes to keep: 	Atts0 
+
+***************************************************************************************************************************
+TC2
+
+Number of selects : 1
+Number of joins : 1
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 1
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+Select CNF: 
+	( Att 0 from left record > Att 0 from literal record (Int)) 
+
+
+*****************
+Join Operation
+Left Input Pipe: 1
+Right Input Pipe: 0
+Output Pipe: 2
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+	 Atts4 r.r_regionkey: INT
+	 Atts5 r.r_name: STRING
+	 Atts6 r.r_comment: STRING
+Select CNF: 
+	( Att 2 from left record = Att 0 from right record (Int)) 
+
+
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 0
+Output Schema: 
+	 Atts0 r.r_regionkey: INT
+	 Atts1 r.r_name: STRING
+	 Atts2 r.r_comment: STRING
+Select CNF: 
+	
+
+*****************
+Project Operation
+Input Pipe:	2
+Output Pipe: 3
+Output Schema: 
+	 Atts0 n.n_name: STRING
+Attributes to keep: 	Atts1 
+
+***************************************************************************************************************************
+TC3
+
+Number of selects : 1
+Number of joins : 1
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 1
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+Select CNF: 
+	( Att 1 from left record = Att 0 from literal record (String)) 
+
+
+*****************
+Join Operation
+Left Input Pipe: 1
+Right Input Pipe: 0
+Output Pipe: 2
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+	 Atts4 r.r_regionkey: INT
+	 Atts5 r.r_name: STRING
+	 Atts6 r.r_comment: STRING
+Select CNF: 
+	( Att 2 from left record = Att 0 from right record (Int)) 
+
+
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 0
+Output Schema: 
+	 Atts0 r.r_regionkey: INT
+	 Atts1 r.r_name: STRING
+	 Atts2 r.r_comment: STRING
+Select CNF: 
+	
+
+*****************
+Sum Operation
+Input Pipe:	2
+Output Pipe: 3
+Output Schema: 
+	 Atts0 sum: DOUBLE
+Sum Function:  PushInt
+
+
+*****************
+Project Operation
+Input Pipe:	3
+Output Pipe: 4
+Output Schema: 
+	 Atts0 sum: DOUBLE
+Attributes to keep: 	Atts0 
+
+***************************************************************************************************************************
+TC4
+
+Number of selects : 1
+Number of joins : 1
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 1
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+Select CNF: 
+	( Att 1 from left record = Att 0 from literal record (String)) 
+
+
+*****************
+Join Operation
+Left Input Pipe: 1
+Right Input Pipe: 0
+Output Pipe: 2
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+	 Atts4 r.r_regionkey: INT
+	 Atts5 r.r_name: STRING
+	 Atts6 r.r_comment: STRING
+Select CNF: 
+	( Att 2 from left record = Att 0 from right record (Int)) 
+
+
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 0
+Output Schema: 
+	 Atts0 r.r_regionkey: INT
+	 Atts1 r.r_name: STRING
+	 Atts2 r.r_comment: STRING
+Select CNF: 
+	
+
+*****************
+GroupBy Operation
+Input Pipe:	2
+Output Pipe: 3
+Output Schema: 
+	 Atts0 sum: DOUBLE
+	 Atts1 n.n_regionkey: INT
+Group By OrderMaker: 
+	NumAtts =     1
+		   0:     2 INT
+
+GROUPING ON FUNCTION:  PushInt
+
+
+*****************
+Project Operation
+Input Pipe:	3
+Output Pipe: 4
+Output Schema: 
+	 Atts0 sum: DOUBLE
+Attributes to keep: 	Atts0 
+
+***************************************************************************************************************************
+TC5
+
+Number of selects : 1
+Number of joins : 2
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 2
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+Select CNF: 
+	( Att 0 from left record > Att 0 from literal record (Int)) 
+
+
+*****************
+Join Operation
+Left Input Pipe: 2
+Right Input Pipe: 1
+Output Pipe: 3
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+	 Atts4 r.r_regionkey: INT
+	 Atts5 r.r_name: STRING
+	 Atts6 r.r_comment: STRING
+Select CNF: 
+	( Att 2 from left record = Att 0 from right record (Int)) 
+
+
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 1
+Output Schema: 
+	 Atts0 r.r_regionkey: INT
+	 Atts1 r.r_name: STRING
+	 Atts2 r.r_comment: STRING
+Select CNF: 
+	
+
+*****************
+Join Operation
+Left Input Pipe: 3
+Right Input Pipe: 0
+Output Pipe: 4
+Output Schema: 
+	 Atts0 n.n_nationkey: INT
+	 Atts1 n.n_name: STRING
+	 Atts2 n.n_regionkey: INT
+	 Atts3 n.n_comment: STRING
+	 Atts4 r.r_regionkey: INT
+	 Atts5 r.r_name: STRING
+	 Atts6 r.r_comment: STRING
+	 Atts7 c.c_custkey: INT
+	 Atts8 c.c_name: STRING
+	 Atts9 c.c_address: STRING
+	 Atts10 c.c_nationkey: INT
+	 Atts11 c.c_phone: STRING
+	 Atts12 c.c_acctbal: DOUBLE
+	 Atts13 c.c_mktsegment: STRING
+	 Atts14 c.c_comment: STRING
+Select CNF: 
+	( Att 0 from left record = Att 3 from right record (Int)) 
+
+
+*****************
+Select File Operation
+Input Pipe: 0
+Output Pipe: 0
+Output Schema: 
+	 Atts0 c.c_custkey: INT
+	 Atts1 c.c_name: STRING
+	 Atts2 c.c_address: STRING
+	 Atts3 c.c_nationkey: INT
+	 Atts4 c.c_phone: STRING
+	 Atts5 c.c_acctbal: DOUBLE
+	 Atts6 c.c_mktsegment: STRING
+	 Atts7 c.c_comment: STRING
+Select CNF: 
+	
+
+*****************
+GroupBy Operation
+Input Pipe:	4
+Output Pipe: 5
+Output Schema: 
+	 Atts0 sum: DOUBLE
+	 Atts1 r.r_regionkey: INT
+Group By OrderMaker: 
+	NumAtts =     1
+		   0:     4 INT
+
+GROUPING ON FUNCTION:  PushInt PushInt 6
+
+
+*****************
+Project Operation
+Input Pipe:	5
+Output Pipe: 6
+Output Schema: 
+	 Atts0 sum: DOUBLE
+Attributes to keep: 	Atts0 
+
+***************************************************************************************************************************
