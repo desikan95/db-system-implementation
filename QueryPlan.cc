@@ -189,10 +189,10 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		this->pipes[node->outPipeId] = sOutPipe;
 		Pipe *slPipe = this->pipes[node->lPipeId];
 		sum->Run(*slPipe, *sOutPipe, *(node->function));
-		Attribute IA = {"int", Int};
-	  Schema out_sch("out_sch", 1, &IA);
-		node->outputSchema = &out_sch;
-		node->outputSchema->Print();
+		// Attribute IA = {"int", Int};
+	  // Schema out_sch("out_sch", 1, &IA);
+		// node->outputSchema = &out_sch;
+		// node->outputSchema->Print();
 		break;
 	}
 	case GROUP_BY:{
