@@ -288,86 +288,236 @@ void *groupByThread(void *arg){
 
 void GroupBy :: StartOperationGroupBy()
 {
-	Record *begin = NULL;
-	Record *finish = NULL;
-	Record *temRecord = new Record;
-	Record *sortRec = new Record;
-	Record recArr[2];
+
+	Pipe sortPipe(PIPE_SIZE);
+	BigQ *bigQ = new BigQ(*(this->inPipe), sortPipe, *(this->sortorder), RUNLEN);
+
+	int ir;  double dr;
 	Type type;
-	int buff_size = 100;
-	Pipe *pipe = new Pipe(buff_size);
 
-	ComparisonEngine comp;
-	int arrbound = (sortorder->numAtts)+1;
-	int groupNumber = 0;
-	int intSum = 0;
-	int intRec = 0;
-	int attsArr[arrbound];
-	double dblSum = 0.0;
-	double dblRec = 0.0;
-	/* Read the tuple into memory M blocks at a time and sort each block*/
-	attsArr[0] = 0;
-	for(int i = 1; i < arrbound; i++)
-		attsArr[i] = sortorder->whichAtts[i-1];
+	Attribute attr;
+	attr.name = (char *)"sum";
+	attr.myType = Double;
+	Schema *schema = new Schema ((char *)"dummy", 1, &attr);
 
-	BigQ bigq(*inPipe, *pipe, *sortorder, run_length); //sort using the big class
-	//Reading the tuple into memory and sorting them based on the attribute
-	while(pipe->Remove(&recArr[groupNumber%2]) == 1){
-		begin = finish;
-		finish = &recArr[groupNumber%2];
-		if(begin != NULL && finish != NULL){
-			if(comp.Compare(begin, finish, sortorder) != 0){
-				computeMe->Apply(*begin, intRec, dblRec);
-				if(computeMe->returnsInt == 1){
-					type = Int;
-					intSum += intRec;
-				}
-				else{
-					type = Double;
-					dblSum += dblRec;
-				}
-				//Get the starting of the sublist
-				int startint = ((int *)begin->bits)[1]/sizeof(int) - 1;
-				//Create record based on the sublist
-				sortRec->ComposeRecord(type, intSum, dblSum);
-				//merge the recordds
-				temRecord->MergeRecords(sortRec, begin, 1, startint, attsArr, arrbound, 1);
-				//append to output file
-				outPipe->Insert(temRecord);
-				intSum = 0;
-				dblSum = 0.0;
-			}
-			else{
-				//if sort order is not present, simply compute the sum
-				computeMe->Apply(*begin, intRec, dblRec);
-				if(computeMe->returnsInt == 1){
-					type = Int;
-					intSum += intRec;
-				}
-				else{
-					type = Double;
-					dblSum += dblRec;
+	int numAttsToKeep = this->sortorder->numAtts + 1;
+	int *attsToKeep = new int[numAttsToKeep];
+	attsToKeep[0] = 0;  //for sumRec
+cout <<"[ 0";
+	for(int i = 1; i < numAttsToKeep; i++)
+	{
+		attsToKeep[i] = this->sortorder->whichAtts[i-1];
+cout <<", "<<attsToKeep[i];
+	}
+cout <<"]"<<endl;
+
+	ComparisonEngine cmp;
+	Record *tmpRcd = new Record();
+//		vector<Record *> group;
+	if(sortPipe.Remove(tmpRcd)) {
+		bool more = true;
+		while(more) {
+			//new group
+			more = false;
+//			cout <<"a new group"<<endl;
+			type = this->computeMe->Apply(*tmpRcd, ir, dr);
+//				group.push_back(tmpRcd);
+			double sum=0;
+			sum += (ir+dr);
+
+			Record *r = new Record();
+			Record *lastRcd = new Record;
+			lastRcd->Copy(tmpRcd);
+			while(sortPipe.Remove(r)) {
+//				cout <<"getting next one"<<endl;
+				if(cmp.Compare(lastRcd, r, this->sortorder) == 0){ //same group
+					type = this->computeMe->Apply(*r, ir, dr);
+					sum += (ir+dr);
+//						Record *cMe = new Record();
+//						lastRcd->Consume(r);
+//						delete r;
+//						group.push_back(cMe);
+				} else {
+					tmpRcd->Copy(r);
+					more = true;
+					break;
 				}
 			}
+			//now produce the output tuple together with the sum
+		//	cout <<"Yahui: " <<schema->GetNumAtts()<<endl;
+
+			ostringstream ss;
+			ss <<sum;
+			ss <<"|";
+		//	cout <<"Yahui: " << ss.str().c_str()<<endl;
+
+			Record *sumRcd = new Record();
+			sumRcd->ComposeRecord(schema, ss.str().c_str());
+
+			Record *tuple = new Record;
+			tuple->MergeRecords(sumRcd, lastRcd, 1, this->sortorder->numAtts, attsToKeep,  numAttsToKeep, 1);
+
+			this->outPipe->Insert(tuple);
+
 		}
-		groupNumber++;
 	}
-	//finally append the final sublist
-	computeMe->Apply(*finish, intRec, dblSum);
-	if(computeMe->returnsInt == 1){
-		type = Int;
-		intSum += intRec;
-	}
-	else{
-		type = Double;
-		dblSum += dblRec;
-	}
-	int startint = ((int *)begin->bits)[1]/sizeof(int) - 1;
-	sortRec->ComposeRecord(type, intSum, dblSum);
-	temRecord->MergeRecords(sortRec, finish, 1, startint, attsArr, arrbound, 1);
-	outPipe->Insert(temRecord);
 
-	outPipe->ShutDown();
+	this->outPipe->ShutDown();
+
+
+	// Record *begin = NULL;
+	// Record *finish = NULL;
+	// Record *temRecord = new Record;
+	// Record *sortRec = new Record;
+	// Record recArr[2];
+	// Type type;
+	// int buff_size = 100;
+	// Pipe *pipe = new Pipe(buff_size);
+  // Record resultRec;
+	// ComparisonEngine comp;
+	// int arrbound = (sortorder->numAtts)+1;
+	// int groupNumber = 0;
+	// int intSum = 0;
+	// int intRec = 0;
+	// int attsArr[arrbound];
+	// double dblSum = 0.0;
+	// double dblRec = 0.0;
+	// /* Read the tuple into memory M blocks at a time and sort each block*/
+	// attsArr[0] = 0;
+	// for(int i = 1; i < arrbound; i++)
+	// 	attsArr[i] = sortorder->whichAtts[i-1];
+  //
+	// BigQ bigq(*inPipe, *pipe, *sortorder, run_length); //sort using the big class
+	// //Reading the tuple into memory and sorting them based on the attribute
+	// while(pipe->Remove(&recArr[groupNumber%2]) == 1){
+	// 	begin = finish;
+	// 	finish = &recArr[groupNumber%2];
+	// 	if(begin != NULL && finish != NULL){
+	// 		if(comp.Compare(begin, finish, sortorder) != 0){
+	// 			int checker = computeMe->Apply(*begin, intRec, dblRec);
+	// 			if(checker == 0){
+	// 				type = Int;
+	// 				intSum += intRec;
+	// 			}
+	// 			else{
+	// 				type = Double;
+	// 				dblSum += dblRec;
+	// 			}
+  //
+  //
+  //
+  //       ostringstream result;
+  //       string resultSum;
+  //
+  //
+  //       // create output record
+  //       if (type == Int) {
+  //         dblSum = intSum;
+  //         result << dblSum;
+  //         resultSum = result.str();
+  //         resultSum.append("|");
+  //         Attribute DA = {"double", Double};
+  //         Schema out_sch("out_sch", 1, &DA);
+  //         sortRec->ComposeRecord(&out_sch, resultSum.c_str());
+  //       } else {
+  //               result << dblSum;
+  //               resultSum = result.str();
+  //               resultSum.append("|");
+  //               Attribute DA = {"double", Double};
+  //               Schema out_sch("out_sch", 1, &DA);
+  //               sortRec->ComposeRecord(&out_sch, resultSum.c_str());
+  //       }
+  //
+  //
+  //
+  //
+  //
+	// 			//Get the starting of the sublist
+	// 			int startint = ((int *)begin->bits)[1]/sizeof(int) - 1;
+	// 			//Create record based on the sublist
+	// 		//	sortRec->ComposeRecord(type, intSum, dblSum);
+	// 			//merge the recordds
+	// 			temRecord->MergeRecords(sortRec, begin, 1, startint, attsArr, arrbound, 1);
+	// 			//append to output file
+	// 			outPipe->Insert(temRecord);
+	// 			intSum = 0;
+	// 			dblSum = 0.0;
+	// 		}
+	// 		else{
+	// 			//if sort order is not present, simply compute the sum
+	// 			int checker = computeMe->Apply(*begin, intRec, dblRec);
+	// 			if(checker == 0){
+	// 				type = Int;
+	// 				intSum += intRec;
+	// 			}
+	// 			else{
+	// 				type = Double;
+	// 				dblSum += dblRec;
+	// 			}
+	// 		}
+	// 	}
+	// 	groupNumber++;
+	// }
+	// //finally append the final sublist
+	// int ch = computeMe->Apply(*finish, intRec, dblSum);
+	// if(ch == 0){
+	// 	type = Int;
+	// 	intSum += intRec;
+	// }
+	// else{
+	// 	type = Double;
+	// 	dblSum += dblRec;
+	// }
+  //
+  //
+	// int startint = ((int *)begin->bits)[1]/sizeof(int) - 1;
+	// //sortRec->ComposeRecord(type, intSum, dblSum);
+  //
+  // ostringstream result1;
+  // string resultSum1;
+  // //Record resultRec;
+  //
+  // // create output record
+  // if (type == Int) {
+  //   dblSum = intSum;
+  //   result1 << dblSum;//
+  //   resultSum1 = result1.str();
+  //   resultSum1.append("|");
+  //   Attribute DA = {"double", Double};
+  //   Schema out_sch("out_sch", 1, &DA);
+  //   sortRec->ComposeRecord(&out_sch, resultSum1.c_str());
+  // } else {
+  //         result1 << dblSum;
+  //         resultSum1 = result1.str();
+  //         resultSum1.append("|");
+  //         Attribute DA = {"double", Double};
+  //         Schema out_sch("out_sch", 1, &DA);
+  //         sortRec->ComposeRecord(&out_sch, resultSum1.c_str());
+  // }
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+	// temRecord->MergeRecords(sortRec, finish, 1, startint, attsArr, arrbound, 1);
+	// outPipe->Insert(temRecord);
+  //
+	// outPipe->ShutDown();
 }
 
 void GroupBy :: Run(Pipe &inPipe, Pipe &outPipe, OrderMaker &groupAtts, Function &computeMe){
