@@ -44,7 +44,7 @@ void Record :: ComposeRecord ( Type type,int intSum,double doubleSum) {
         if (type == Int) {
                 *((int *) &(recMemSize[recPos])) = intSum;
                 recPos += sizeof (int);
-        } 
+        }
         else  {
                 while (recPos % sizeof(double) != 0) {
                         recPos += sizeof (int);
@@ -60,6 +60,7 @@ void Record :: ComposeRecord ( Type type,int intSum,double doubleSum) {
 			exit(1);
         }
 	memcpy (bits, recMemSize, recPos);
+  
         delete [] recMemSize;
 }
 
@@ -200,7 +201,7 @@ int Record :: SuckNextRecord (Schema *mySchema, FILE *textFile) {
 
         // loop through all of the attributes
         for (int i = 0; i < n; i++) {
-               
+
                 // first we suck in the next attribute value
                 int len = 0;
                 while (1) {
@@ -252,7 +253,7 @@ int Record :: SuckNextRecord (Schema *mySchema, FILE *textFile) {
                         currentPosInRec += len;
 
                 }
-               
+
         }
 
         // the last thing is to set up the pointer to just past the end of the reocrd
@@ -266,7 +267,7 @@ int Record :: SuckNextRecord (Schema *mySchema, FILE *textFile) {
                 exit(1);
         }
 
-        memcpy (bits, recSpace, currentPosInRec);      
+        memcpy (bits, recSpace, currentPosInRec);
 
         delete [] space;
         delete [] recSpace;
@@ -297,7 +298,7 @@ void Record :: CopyBits(char *bits, int b_len) {
         }
 
         memcpy (this->bits, bits, b_len);
-       
+
 }
 
 int Record :: GetSize(){
@@ -372,7 +373,7 @@ void Record :: Project (int *attsToKeep, int numAttsToKeep, int numAttsNow) {
                 }
 
                 // set the start position of this field
-                ((int *) newBits)[i + 1] = curPos;      
+                ((int *) newBits)[i + 1] = curPos;
 
                 // and copy over the bits
                 memcpy (&(newBits[curPos]), &(bits[((int *) bits)[attsToKeep[i] + 1]]), attLen);
@@ -449,7 +450,7 @@ void Record :: MergeRecords (Record *left, Record *right, int numAttsLeft, int n
                         numAttsNow = numAttsRight;
                         rec_bits = right->bits;
                 }
-               
+
                 // this is the length (in bytes) of the current attribute
                 int attLen;
 
@@ -501,12 +502,12 @@ void Record :: Print (Schema *mySchema) {
                 // then is a double
                 } else if (atts[i].myType == Double) {
                         double *myDouble = (double *) &(bits[pointer]);
-                        cout << *myDouble;      
+                        cout << *myDouble;
 
                 // then is a character string
                 } else if (atts[i].myType == String) {
                         char *myString = (char *) &(bits[pointer]);
-                        cout << myString;      
+                        cout << myString;
                 }
 
                 cout << "]";
@@ -531,11 +532,11 @@ void Record :: WriteToFile (FILE *myFile, Schema *mySchema) {
 			if (atts[i].myType == Int) {
 				int *temp = (int *) &(bits[ptr]);
                                 fprintf(myFile,"%d",*temp);
-			} 
+			}
 			else if (atts[i].myType == Double) {
 				double *tempDbl = (double *) &(bits[ptr]);
                                 fprintf(myFile,"%f",*tempDbl);
-			} 
+			}
                         else if (atts[i].myType == String) {
 				char *str = (char *) &(bits[ptr]);
                                 fprintf(myFile,"%s",str);

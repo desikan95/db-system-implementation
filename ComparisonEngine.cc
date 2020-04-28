@@ -20,46 +20,46 @@ int ComparisonEngine :: Compare(Record *left, Record *right, OrderMaker *orderUs
         for (int i = 0; i < orderUs->numAtts; i++) {
                 val1 = left_bits + ((int *) left_bits)[orderUs->whichAtts[i] + 1];
                 val2 = right_bits + ((int *) right_bits)[orderUs->whichAtts[i] + 1];
-        
+
                 // these are used to store the two operands, depending on their type
                 int val1Int, val2Int;
                 double val1Double, val2Double;
-                
+
                 // now check the type and do the comparison
                 switch (orderUs->whichTypes[i]) {
-        
+
                         // first case: we are dealing with integers
                         case Int:
-        
+
                         // cast the two bit strings to ints
                         val1Int = *((int *) val1);
                         val2Int = *((int *) val2);
-        
+
                         // and do the comparison
-                        if (val1Int < val2Int) 
+                        if (val1Int < val2Int)
                                 return -1;
                         else if (val1Int > val2Int)
                                 return 1;
-        
+
                         break;
-        
-        
+
+
                         // second case: dealing with doubles
                         case Double:
-        
+
                         // cast the two bit strings to doubles
                         val1Double = *((double *) val1);
                         val2Double = *((double *) val2);
-        
+
                         // and do the comparison
                         if (val1Double < val2Double)
                                 return -1;
                         else if (val1Double > val2Double)
                                 return 1;
-        
+
                         break;
-        
-        
+
+
                         // last case: dealing with strings
                         default:
 
@@ -68,7 +68,7 @@ int ComparisonEngine :: Compare(Record *left, Record *right, OrderMaker *orderUs
                                 return sc;
 
                         break;
-        
+
                 }
         }
 
@@ -93,48 +93,48 @@ int ComparisonEngine :: Compare (Record *left, OrderMaker *order_left, Record *r
 
                 val1 = left_bits + ((int *) left_bits)[order_left->whichAtts[i] + 1];
                 val2 = right_bits + ((int *) right_bits)[order_right->whichAtts[i] + 1];
-        
+
 
 
                 // these are used to store the two operands, depending on their type
                 int val1Int, val2Int;
                 double val1Double, val2Double;
-                
+
                 // now check the type and do the comparison
                 switch (order_left->whichTypes[i]) {
-        
+
                         // first case: we are dealing with integers
                         case Int:
-        
+
                         // cast the two bit strings to ints
                         val1Int = *((int *) val1);
                         val2Int = *((int *) val2);
-        
+
                         // and do the comparison
-                        if (val1Int < val2Int) 
+                        if (val1Int < val2Int)
                                 return -1;
                         else if (val1Int > val2Int)
                                 return 1;
-        
+
                         break;
-        
-        
+
+
                         // second case: dealing with doubles
                         case Double:
-        
+
                         // cast the two bit strings to doubles
                         val1Double = *((double *) val1);
                         val2Double = *((double *) val2);
-        
+
                         // and do the comparison
                         if (val1Double < val2Double)
                                 return -1;
                         else if (val1Double > val2Double)
                                 return 1;
-        
+
                         break;
-        
-        
+
+
                         // last case: dealing with strings
                         default:
                                 //cerr<<"val1"<<val1<<endl;
@@ -144,7 +144,7 @@ int ComparisonEngine :: Compare (Record *left, OrderMaker *order_left, Record *r
                                 return sc;
 
                         break;
-        
+
                 }
         }
 
@@ -162,11 +162,11 @@ int ComparisonEngine :: Compare (Record *left, Record *literal, CNF *myCompariso
 
                         // this returns a 0 if the comparison did not eval to true
                         int result = Run(left, literal, &myComparison->orList[i][j]);
-                        
+
                         if (result != 0) {
-                                break;  
+                                break;
                         }
-                        
+
                         // if we made it through all of the comparisons without a hit, return a 0
                         if (j == myComparison->orLens[i] - 1) {
                                 return 0;
@@ -179,7 +179,7 @@ int ComparisonEngine :: Compare (Record *left, Record *literal, CNF *myCompariso
 
         // this ends the for-loop for the AND-list... if we made it this far, then we know that we
         // have satisfied the overall CNF expression
-        return 1;       
+        return 1;
 }
 
 
@@ -192,9 +192,9 @@ int ComparisonEngine :: Compare (Record *left, Record *right, Record *literal, C
 
                         // this returns a 0 if the comparison did not eval to true
                         int result = Run (left, right, literal, &myComparison->orList[i][j]);
-                        
+
                         if (result != 0) {
-                                break;  
+                                break;
                         }
 
                         // if we made it through all of the comparisons without a hit, return a 0
@@ -209,7 +209,7 @@ int ComparisonEngine :: Compare (Record *left, Record *right, Record *literal, C
 
         // this ends the for-loop for the AND-list... if we made it this far, then we know that we
         // have satisfied the overall CNF expression
-        return 1;       
+        return 1;
 }
 
 // This is an internal function used by the comparison engine
@@ -249,7 +249,7 @@ int ComparisonEngine :: Run (Record *left, Record *literal, Comparison *c) {
 
                 // and check the operation type in order to actually do the comparison
                 switch (c->op) {
-                                
+
                         case LessThan:
                         return (val1Int < val2Int);
                         break;
@@ -257,11 +257,11 @@ int ComparisonEngine :: Run (Record *left, Record *literal, Comparison *c) {
                         case GreaterThan:
                         return (val1Int > val2Int);
                         break;
-                                        
+
                         default:
                         return (val1Int == val2Int);
-                        break;  
-                }       
+                        break;
+                }
                 break;
 
                 // second case: dealing with doubles
@@ -271,7 +271,7 @@ int ComparisonEngine :: Run (Record *left, Record *literal, Comparison *c) {
 
                 // and check the operation type in order to actually do the comparison
                 switch (c->op) {
-                                                
+
                         case LessThan:
                         return (val1Double < val2Double);
                         break;
@@ -279,11 +279,11 @@ int ComparisonEngine :: Run (Record *left, Record *literal, Comparison *c) {
                         case GreaterThan:
                         return (val1Double > val2Double);
                         break;
-                                        
+
                         default:
                         return (val1Double == val2Double);
-                        break;  
-                }       
+                        break;
+                }
                 break;
 
                 // final case: dealing with strings
@@ -292,7 +292,7 @@ int ComparisonEngine :: Run (Record *left, Record *literal, Comparison *c) {
                 // so check the operation type in order to actually do the comparison
                 tempResult = strcmp (val1, val2);
                 switch (c->op) {
-                                                
+
                         case LessThan:
                         return tempResult < 0;
                         break;
@@ -300,11 +300,11 @@ int ComparisonEngine :: Run (Record *left, Record *literal, Comparison *c) {
                         case GreaterThan:
                         return tempResult > 0;
                         break;
-                                        
+
                         default:
                         return tempResult == 0;
-                        break;  
-                }       
+                        break;
+                }
                 break;
         }
 
@@ -325,14 +325,14 @@ int ComparisonEngine :: Run (Record *left, Record *right, Record *literal, Compa
                 case Left:
                 val1 = left_bits + ((int *) left_bits)[c->whichAtt1 + 1];
                 break;
-        
+
                 case Right:
                 val1 = right_bits + ((int *) right_bits)[c->whichAtt1 + 1];
                 break;
 
                 default:
                 val1 = lit_bits + ((int *) lit_bits)[c->whichAtt1 + 1];
-                break;  
+                break;
         }
 
         // next get a pointer to the second value to compare
@@ -348,10 +348,10 @@ int ComparisonEngine :: Run (Record *left, Record *right, Record *literal, Compa
 
                 default:
                 val2 = lit_bits + ((int *) lit_bits)[c->whichAtt2 + 1];
-                break;  
+                break;
 
         }
-                        
+
         int val1Int, val2Int, tempResult;
         double val1Double, val2Double;
 
@@ -366,7 +366,7 @@ int ComparisonEngine :: Run (Record *left, Record *right, Record *literal, Compa
 
                 // and check the operation type in order to actually do the comparison
                 switch (c->op) {
-                                
+
                         case LessThan:
                         return (val1Int < val2Int);
                         break;
@@ -374,11 +374,11 @@ int ComparisonEngine :: Run (Record *left, Record *right, Record *literal, Compa
                         case GreaterThan:
                         return (val1Int > val2Int);
                         break;
-                                        
+
                         default:
                         return (val1Int == val2Int);
-                        break;  
-                }       
+                        break;
+                }
                 break;
 
                 // second case: dealing with doubles
@@ -388,7 +388,7 @@ int ComparisonEngine :: Run (Record *left, Record *right, Record *literal, Compa
 
                 // and check the operation type in order to actually do the comparison
                 switch (c->op) {
-                                                
+
                         case LessThan:
                         return (val1Double < val2Double);
                         break;
@@ -396,11 +396,11 @@ int ComparisonEngine :: Run (Record *left, Record *right, Record *literal, Compa
                         case GreaterThan:
                         return (val1Double > val2Double);
                         break;
-                                        
+
                         default:
                         return (val1Double == val2Double);
-                        break;  
-                }       
+                        break;
+                }
                 break;
 
                 // final case: dealing with strings
@@ -409,7 +409,7 @@ int ComparisonEngine :: Run (Record *left, Record *right, Record *literal, Compa
                 // so check the operation type in order to actually do the comparison
                 tempResult = strcmp (val1, val2);
                 switch (c->op) {
-                                                
+
                         case LessThan:
                         return tempResult < 0;
                         break;
@@ -417,16 +417,12 @@ int ComparisonEngine :: Run (Record *left, Record *right, Record *literal, Compa
                         case GreaterThan:
                         return tempResult > 0;
                         break;
-                                        
+
                         default:
                         return tempResult == 0;
-                        break;  
-                }       
+                        break;
+                }
                 break;
         }
 
 }
-
-
-
-

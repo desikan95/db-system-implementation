@@ -122,8 +122,13 @@ void *writeOutThread(void *args){
 void WriteOut :: StartOperationWriteOut(){
 	Record temRecord;
 	while(inPipe->Remove(&temRecord))
+  {
+    temRecord.Print(schema);
+    cout<<"\nWriting to a file dude\n";
 		temRecord.WriteToFile(outfile, schema);			//Writing results out to file
-	fclose(outfile);
+
+  }
+  fclose(outfile);
 	inPipe->ShutDown();
 }
 
@@ -200,8 +205,10 @@ void Sum :: StartOperationSum(){
 	double DblSumRec = 0.0;
 	double DblSumTotal = 0.0;
 	while(inPipe->Remove(&rec)){
-		compute->Apply(rec, IntRecSum, DblSumRec);
-		if(compute->returnsInt == 1){
+		int checker = compute->Apply(rec, IntRecSum, DblSumRec);
+
+    cout<<"\nCHECKER IS "<<checker;
+		if(checker == 0){
 			type = Int;
 			IntSumTotal +=  IntRecSum;				//Computing the sum by processing each record
 		}
@@ -210,8 +217,41 @@ void Sum :: StartOperationSum(){
 			DblSumTotal += DblSumRec;
 		}
 	}
-	temRecord.ComposeRecord(type, IntSumTotal, DblSumTotal);		//Putting the aggregate sum into a record
-	outPipe->Insert(&temRecord);
+  cout<<"\nINTSUM"<<IntSumTotal<<endl;
+
+  ostringstream result;
+  string resultSum;
+  Record resultRec;
+
+  // create output record
+  if (type == Int) {
+
+          result << IntSumTotal;
+          resultSum = result.str();
+          resultSum.append("|");
+
+          Attribute IA = {"int", Int};
+          Schema out_sch("out_sch", 1, &IA);
+          resultRec.ComposeRecord(&out_sch, resultSum.c_str());
+
+  } else {
+
+          result << DblSumTotal;
+          resultSum = result.str();
+          resultSum.append("|");
+
+          Attribute DA = {"double", Double};
+          Schema out_sch("out_sch", 1, &DA);
+          resultRec.ComposeRecord(&out_sch, resultSum.c_str());
+  }
+  Attribute IA = {"int", Int};
+  Schema out_sch("out_sch", 1, &IA);
+  cout<<"\nPRINTING RECORD>>>>>>>>>>>>>>";
+  resultRec.Print(&out_sch);
+
+
+//	temRecord.ComposeRecord(type, IntSumTotal, DblSumTotal);		//Putting the aggregate sum into a record
+	outPipe->Insert(&resultRec);
 	outPipe->ShutDown();
 }
 
@@ -353,30 +393,30 @@ void Join :: StartOperationJoin(){
 	Record *recordRight = new Record();
 	Record *recordJoin = new Record();
 	ComparisonEngine compare;
-	Pipe *l_pipe = new Pipe(buffer_size); //pipe for left table	
+	Pipe *l_pipe = new Pipe(buffer_size); //pipe for left table
 	Pipe *r_pipe = new Pipe(buffer_size); //pipe for right table
-	OrderMaker l_sortOrder; 
+	OrderMaker l_sortOrder;
 	OrderMaker r_sortOrder;
 	vector<Record *> leftVector, rightVector;
 
 	if(cnf->GetSortOrders(l_sortOrder, r_sortOrder)){ //get the sort order for both tuples
-		
+
 		//sort the left and right tuples
 		BigQ leftBigq(*inPipeLeft, *l_pipe, l_sortOrder, 10);
 		BigQ rightBigq(*inPipeRight, *r_pipe, r_sortOrder, 10);
-		
+
 		//take the top record from both pipes
 		l_pipe->Remove(recordLeft);
 		r_pipe->Remove(recordRight);
-		
+
 		//set the flags for quit condition
 		bool lFlag = false;
 		bool rFlag = false;
-		
+
 		//get the size of the record
 		leftint = ((int *) recordLeft->bits)[1] / sizeof(int) -1;
 		rightint = ((int *) recordRight->bits)[1] / sizeof(int) -1;
-		
+
 		int totalint = leftint + rightint;
 		int attsArr[totalint];
 		for(int i=0; i<leftint; i++)
@@ -386,7 +426,7 @@ void Join :: StartOperationJoin(){
 
 		while(true){
 			if(compare.Compare(recordLeft, &l_sortOrder, recordRight, &r_sortOrder) < 0){
-				if(l_pipe->Remove(recordLeft) != 1) //if left pipe is empty 
+				if(l_pipe->Remove(recordLeft) != 1) //if left pipe is empty
 				break;
 			}
 			else if(compare.Compare(recordLeft, &l_sortOrder, recordRight, &r_sortOrder) > 0){
@@ -428,7 +468,7 @@ void Join :: StartOperationJoin(){
 						outPipe->Insert(recordJoin);
 					}
 				}
-				
+
 				// clear the vectors
 				leftVector.clear();
 				rightVector.clear();
@@ -453,7 +493,7 @@ void Join :: StartOperationJoin(){
 		rightint = ((int *) rightVector.at(0)->bits)[1] / sizeof(int) -1;
 
 		int attsArr[leftint+rightint];
-		
+
 		//get the attributes and store it in array
 		for(int i=0; i<leftint; i++)
 			attsArr[i] = i;
