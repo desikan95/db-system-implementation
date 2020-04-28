@@ -37,7 +37,7 @@ int RUNLEN;
 
 int main() {
 
-	
+
 	FILE *cat_fp = fopen("location", "r");
 	fscanf(cat_fp, "%s", catalog_path);
 	fscanf(cat_fp, "%s", dbfile_dir);
@@ -45,59 +45,61 @@ int main() {
 	fscanf(cat_fp, "%d", &RUNLEN);
 	fclose(cat_fp);
 
-	cout <<"sql->";
-	cout.flush();
-	yyparse();
+	int option = 0;
+	cout<<"\nHello, User. Welcome to our DB. This was developed by Desikan Sundararajan and Aditya Karlekar in C++.\n";
+	cout<<"\nThe following functionalities have been implemented : \n";
+	cout<<"1. Create Table\n2. Insert Into Table\n3. Drop Table\n4. Execute Query\n\n";
 
-	QueryPlan *queryPlan = new QueryPlan();
-	if(quit) {
-		cout <<"yhsql: Thanks for using yhsql. Bye!"<<endl;
-		return 0;
-	}
-	//retrive the output target from output_path
+	do {
+		/* code */
+					cout<<"\n______________________________________________________________________";
+					cout<<"\nEnter your query below : ";
+					cout <<"\n>>>";
+					cout.flush();
+					yyparse();
 
-	if(createTable){
-		if(queryPlan->ExecuteCreateTable(createTable)) {
-			cout <<"Created table"<<createTable->tableName<<endl;
-		}
-	}else if(insertFile) {
-		if(queryPlan->ExecuteInsertFile(insertFile)) {
-			cout <<"Loaded file "<<insertFile->fileName<<" into " <<insertFile->tableName<<endl;
-		}
-	} else if(dropTableName) {
-		if(queryPlan->ExecuteDropTable(dropTableName)) {
-			cout <<"Dropped dbfile"<<dropTableName<<endl;
-		}
-	} else if(setOutPut) {
-		queryPlan->output = setOutPut;
-		FILE *wfp = fopen(output_path, "w");
-		fprintf(wfp, "%s", setOutPut);
-		fclose(wfp);
-		cout <<"Setted output to "<<setOutPut<<endl;
-	} else if(tables){ // query
-	//now we have all the info in the above data structure
-		Statistics *s = new Statistics();
-		s->initStatistics();
+					QueryPlan *queryPlan = new QueryPlan();
+					//retrive the output target from output_path
 
-		Optimizer optimizer(finalFunction, tables, boolean, groupingAtts,
-						attsToSelect, distinctAtts, distinctFunc, s);
+					if(createTable){
+						if(queryPlan->ExecuteCreateTable(createTable)) {
+							cout<<createTable->tableName<<" has been created "<<endl;
+						}
+					}else if(insertFile) {
+						if(queryPlan->ExecuteInsertFile(insertFile)) {
+							cout <<"Loaded file : "<<insertFile->fileName<<" into " <<insertFile->tableName<<endl;
+						}
+					} else if(dropTableName) {
+						if(queryPlan->ExecuteDropTable(dropTableName)) {
+							cout <<"Dropped table "<<dropTableName<<endl;
+						}
+					} else if(setOutPut) {
+						queryPlan->output = setOutPut;
+						FILE *wfp = fopen(output_path, "w");
+						fprintf(wfp, "%s", setOutPut);
+						fclose(wfp);
+						cout <<"Output has been set to "<<setOutPut<<endl;
+					} else if(tables){ // query
+					//now we have all the info in the above data structure
+						Statistics *s = new Statistics();
+						s->initStatistics();
 
-		QueryPlan *queryPlan =
-				optimizer.OptimizedQueryPlan();
-		if(queryPlan == NULL) {
-			cerr <<"ERROR in building query Plan!"<<endl;
-			exit(0);
-		}
+						Optimizer optimizer(finalFunction, tables, boolean, groupingAtts,	attsToSelect, distinctAtts, distinctFunc, s);
+						QueryPlan *queryPlan = optimizer.OptimizedQueryPlan();
+						if(queryPlan == NULL) {
+							cerr <<"ERROR in building query Plan!"<<endl;
+							exit(0);
+						}
+						if( strcmp(queryPlan->output, "NONE") == 0)
+							queryPlan->ExecuteQueryPlan();
+						else
+							queryPlan->ExecuteQuery();
+					}
 
-		time_t t1;
-		time(&t1);
-		queryPlan->ExecuteQueryPlan();
-		time_t t2;
-		time(&t2);
-		cout <<"Execution took "<<difftime(t2, t1)<<" seconds!"<<endl;
-	}
+					if (quit)
+						option = 1;
+
+	} while(option==0);
 
 	return 0;
 }
-
-

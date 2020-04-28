@@ -60,7 +60,7 @@ void Record :: ComposeRecord ( Type type,int intSum,double doubleSum) {
 			exit(1);
         }
 	memcpy (bits, recMemSize, recPos);
-  
+
         delete [] recMemSize;
 }
 
@@ -522,29 +522,31 @@ void Record :: Print (Schema *mySchema) {
 }
 
 // Function for writeout in RelOp.cc //
-void Record :: WriteToFile (FILE *myFile, Schema *mySchema) {
+void Record :: WriteToFile (FILE *myFile, Schema *mySchema)
+{
         int n = mySchema->GetNumAtts();
         Attribute *atts = mySchema->GetAtts();
-		for (int i = 0; i < n; i++) {
-			fprintf(myFile,"%s:",atts[i].name);
-			int ptr = ((int *) bits)[i + 1];
-			fprintf(myFile,"[");
-			if (atts[i].myType == Int) {
-				int *temp = (int *) &(bits[ptr]);
-                                fprintf(myFile,"%d",*temp);
-			}
-			else if (atts[i].myType == Double) {
-				double *tempDbl = (double *) &(bits[ptr]);
-                                fprintf(myFile,"%f",*tempDbl);
-			}
-                        else if (atts[i].myType == String) {
-				char *str = (char *) &(bits[ptr]);
-                                fprintf(myFile,"%s",str);
-                        }
-			fprintf(myFile,"]");
-                if (i != n - 1) {
-			fprintf(myFile,", ");
-                }
+    		for (int i = 0; i < n; i++)
+        {
+      			fprintf(myFile,"%s:",atts[i].name);
+      			int ptr = ((int *) bits)[i + 1];
+      			fprintf(myFile,"[");
+      			if (atts[i].myType == Int) {
+      				   int *temp = (int *) &(bits[ptr]);
+                 fprintf(myFile,"%d",*temp);
+      			}
+      			else if (atts[i].myType == Double) {
+      				   double *tempDbl = (double *) &(bits[ptr]);
+                 fprintf(myFile,"%f",*tempDbl);
+      			}
+            else if (atts[i].myType == String) {
+      				   char *str = (char *) &(bits[ptr]);
+                 fprintf(myFile,"%s",str);
+            }
+      			fprintf(myFile,"]");
+                      if (i != n - 1) {
+      			fprintf(myFile,", ");
+                      }
         }
-       fprintf(myFile,"\n");
+        fprintf(myFile,"\n");
 }

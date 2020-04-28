@@ -189,10 +189,6 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		this->pipes[node->outPipeId] = sOutPipe;
 		Pipe *slPipe = this->pipes[node->lPipeId];
 		sum->Run(*slPipe, *sOutPipe, *(node->function));
-		// Attribute IA = {"int", Int};
-	  // Schema out_sch("out_sch", 1, &IA);
-		// node->outputSchema = &out_sch;
-		// node->outputSchema->Print();
 		break;
 	}
 	case GROUP_BY:{
@@ -230,7 +226,6 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		this->pipes[node->outPipeId] = drOutPipe;
 		Pipe *drlPipe = this->pipes[node->lPipeId];
 		dr->Run(*drlPipe, *drOutPipe, *(node->left->outputSchema));
-
 		break;
 	}
 	default:
@@ -240,35 +235,55 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 
 
 int QueryPlan::ExecuteQueryPlan() {
-	if( strcmp(this->output, "NONE") == 0) {
+	if( strcmp(this->output, "NONE") == 0)// {
 		this->PrintInOrder();
-	} else {
-		QueryPlanNode *writeOut = new QueryPlanNode;
-		writeOut->opType = WRITEOUT;
-		writeOut->left = this->root;
-		writeOut->lPipeId = writeOut->left->outPipeId;
-		writeOut->outputSchema = writeOut->left->outputSchema;
-		if( strcmp(this->output, "STDOUT") == 0) {
-			writeOut->outFile = stdout;
-		} else {
-			FILE *fp = fopen(this->output, "w");
-			writeOut->outFile = fp;
-		}
-		this->ExecuteNode(writeOut);
-		for(vector<RelationalOp *>::iterator roIt=this->operators.begin(); roIt!=this->operators.end();roIt++){
-			RelationalOp *op = *roIt;
-			op->WaitUntilDone();
-		}
-	}
+	// } else {
+	// 	QueryPlanNode *writeOut = new QueryPlanNode;
+	// 	writeOut->opType = WRITEOUT;
+	// 	writeOut->left = this->root;
+	// 	writeOut->lPipeId = writeOut->left->outPipeId;
+	// 	writeOut->outputSchema = writeOut->left->outputSchema;
+	// 	if( strcmp(this->output, "STDOUT") == 0) {
+	// 		writeOut->outFile = stdout;
+	// 	} else {
+	// 		FILE *fp = fopen(this->output, "w");
+	// 		writeOut->outFile = fp;
+	// 	}
+	// 	this->ExecuteNode(writeOut);
+	// 	for(vector<RelationalOp *>::iterator roIt=this->operators.begin(); roIt!=this->operators.end();roIt++){
+	// 		RelationalOp *op = *roIt;
+	// 		op->WaitUntilDone();
+	// 	}
+	// }
 	return 1;
 }
 
-// ------------------Execute ------------
+int QueryPlan::ExecuteQuery() {
+	QueryPlanNode *writeOut = new QueryPlanNode;
+	writeOut->opType = WRITEOUT;
+	writeOut->left = this->root;
+	writeOut->lPipeId = writeOut->left->outPipeId;
+	writeOut->outputSchema = writeOut->left->outputSchema;
+	if( strcmp(this->output, "STDOUT") == 0) {
+		writeOut->outFile = stdout;
+	} else {
+		FILE *fp = fopen(this->output, "w");
+		writeOut->outFile = fp;
+	}
+	this->ExecuteNode(writeOut);
+	for(vector<RelationalOp *>::iterator roIt=this->operators.begin(); roIt!=this->operators.end();roIt++){
+		RelationalOp *op = *roIt;
+		op->WaitUntilDone();
+	}
+	return 1;
+
+}
+
+//Creating a new table
 int QueryPlan::ExecuteCreateTable(CreateTable *createTable) {
 	DBFile *db = new DBFile;
 	char dbpath[100];
 	sprintf(dbpath, "%s%s.bin", dbfile_dir, createTable->tableName);
-//	cout <<"create at : " <<dbpath<<endl;
 	SortInfo *info = new SortInfo;
 	OrderMaker *om = new OrderMaker;
 	if(createTable->type == SORTED) {
@@ -292,30 +307,33 @@ int QueryPlan::ExecuteCreateTable(CreateTable *createTable) {
 		info->myOrder = om;
 		info->runLength = RUNLEN;
 		db->Create(dbpath, sorted, (void*)info);
-	} else
-		db->Create(dbpath, heap, NULL );
+	}
+	else
+			db->Create(dbpath, heap, NULL );
 	db->Close();
 	return 1;
 }
 
+//Loading from tbl file into table
 int QueryPlan::ExecuteInsertFile(InsertFile *insertFile) {
-	DBFile dbfile;
-	char dbpath[100];
-	sprintf(dbpath, "%s%s.bin", dbfile_dir, insertFile->tableName);
-	dbfile.Open(dbpath);
-	char fpath[100];
-	sprintf(fpath, "%s%s", tpch_dir, insertFile->fileName);
-	cout <<"loading " <<fpath<<endl;
-	Schema schema((char*)catalog_path, insertFile->tableName);
-	dbfile.Load(schema, fpath);
-	dbfile.Close();
-	return 1;
+		DBFile dbfile;
+		char dbpath[100];
+		sprintf(dbpath, "%s%s.bin", dbfile_dir, insertFile->tableName);
+		dbfile.Open(dbpath);
+		char fpath[100];
+		sprintf(fpath, "%s%s", tpch_dir, insertFile->fileName);
+		cout <<"loading " <<fpath<<endl;
+		Schema schema((char*)catalog_path, insertFile->tableName);
+		dbfile.Load(schema, fpath);
+		dbfile.Close();
+		return 1;
 }
 
+//Drop table
 int QueryPlan::ExecuteDropTable(char *dropTable) {
-	char dbpath[100];
-	sprintf(dbpath, "%s%s.bin", dbfile_dir, dropTable);
-	remove(dbpath);
-	sprintf(dbpath, "%s.header", dbpath);
-	remove(dbpath);
+		char dbpath[100];
+		sprintf(dbpath, "%s%s.bin", dbfile_dir, dropTable);
+		remove(dbpath);
+		sprintf(dbpath, "%s.header", dbpath);
+		remove(dbpath);
 }

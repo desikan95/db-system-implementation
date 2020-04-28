@@ -1,10 +1,3 @@
-/*
- * Optimizer.h
- *
- *  Created on: Apr 26, 2013
- *      Author: yahuihan
- */
-// enumerate all possible query plan to find the optimal one
 #ifndef OPTIMIZER_H_
 #define OPTIMIZER_H_
 

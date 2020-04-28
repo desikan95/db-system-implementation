@@ -18,16 +18,6 @@ Optimizer::Optimizer(struct FuncOperator *finalFunction,struct TableList *tables
 	this->statistics = s;
 
 	int select_count=0;
-	// while(pAttsToSelect)
-	// {
-	// 	pAttsToSelect=pAttsToSelect->next;
-	// 	select_count++;
-	// }
-	// cout<<"\nNumber of selects : "<<pAttsToSelect<<endl;
-	// if (distinct_atts==NULL)
-	// 	cout<<"Distinct : NO"<<endl;
-	// else
-	// 	cout<<"Distinct: YES"<<endl;
 }
 
 
