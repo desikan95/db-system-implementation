@@ -225,14 +225,22 @@ void Sum :: StartOperationSum(){
 
   // create output record
   if (type == Int) {
+    DblSumTotal = IntSumTotal;
+    result << DblSumTotal;
+    resultSum = result.str();
+    resultSum.append("|");
 
-          result << IntSumTotal;
-          resultSum = result.str();
-          resultSum.append("|");
+    Attribute DA = {"double", Double};
+    Schema out_sch("out_sch", 1, &DA);
+    resultRec.ComposeRecord(&out_sch, resultSum.c_str());
 
-          Attribute IA = {"int", Int};
-          Schema out_sch("out_sch", 1, &IA);
-          resultRec.ComposeRecord(&out_sch, resultSum.c_str());
+          // result << IntSumTotal;
+          // resultSum = result.str();
+          // resultSum.append("|");
+          //
+          // Attribute IA = {"int", Int};
+          // Schema out_sch("out_sch", 1, &IA);
+          // resultRec.ComposeRecord(&out_sch, resultSum.c_str());
 
   } else {
 

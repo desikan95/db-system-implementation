@@ -419,6 +419,7 @@ QueryPlan * Optimizer::OptimizedQueryPlan() {
 		Attribute *attr = new Attribute[1];
 		attr[0].name = (char *)"sum";
 		attr[0].myType = Double;
+	//	attr[0].myType = Int;
 		Schema *sumSchema = new Schema ((char *)"dummy", 1, attr);
 
 		NameList *attName = this->groupAtts;
@@ -461,8 +462,8 @@ QueryPlan * Optimizer::OptimizedQueryPlan() {
 
 		Attribute *attr = new Attribute[1];
 		attr[0].name = (char *)"sum";
-	//	attr[0].myType = Double;
-		attr[0].myType = Int;
+		attr[0].myType = Double;
+			//attr[0].myType = Int;
 		sum->outputSchema = new Schema ((char *)"dummy", 1, attr);
 	}
 
@@ -485,6 +486,7 @@ QueryPlan * Optimizer::OptimizedQueryPlan() {
 			outputAtts = new Attribute[outputNum+1];
 			outputAtts[0].name = (char *)"sum";
 			outputAtts[0].myType = Double;
+		//	outputAtts[0].myType = Int;
 			ithAttr = 1;
 	}
 	else if(sum) {
@@ -494,8 +496,8 @@ QueryPlan * Optimizer::OptimizedQueryPlan() {
 		project->keepMe[0] = sum->outputSchema->Find((char *) "sum");
 		outputAtts = new Attribute[outputNum];
 		outputAtts[0].name = (char*)"sum";
-		// outputAtts[0].myType = Double;
-		outputAtts[0].myType = Int;
+		 outputAtts[0].myType = Double;
+		//outputAtts[0].myType = Int;
 		ithAttr = 1;
 	}
 	else if(join) {
