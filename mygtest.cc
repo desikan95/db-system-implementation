@@ -15,6 +15,11 @@ extern "C" {
 	int yyfuncparse(void);   // defined in yyfunc.tab.c
 }
 
+extern struct CreateTable *createTable;
+extern struct InsertFile *insertFile;
+extern char *dropTableName;
+extern char *setOutPut;
+
 extern struct FuncOperator *finalFunction;
 extern struct TableList *tables;
 extern struct AndList *boolean;
@@ -30,71 +35,55 @@ char dbfile_dir[50];
 char tpch_dir[50];
 int RUNLEN;
 
-int GetCount(QueryPlanNode *node) {
-	  if (node->left)
-		    return 1+GetCount(node->left);
-		else if(node->right)
-		    return 1+GetCount(node->right);
-    else
-        return 1;
-}
-
-
-TEST( QueryPlanTest, QueryPlanGeneration)
+TEST( QueryPlanTest, CreateTable)
 {
-    FILE *cat_fp = fopen("location", "r");
-    fscanf(cat_fp, "%s", catalog_path);
-    Statistics *stats = new Statistics();
-    stats->initStatistics();
 
-    char *cnf = "SELECT SUM DISTINCT (n.n_nationkey + r.r_regionkey) FROM nation AS n, region AS r, customer AS c WHERE (n.n_regionkey = r.r_regionkey) AND (n.n_nationkey = c.c_nationkey) AND (n.n_nationkey > 10)GROUP BY r.r_regionkey";
-
-  	yy_scan_string(cnf);
-  	yyparse();
-
-    Optimizer optimizer(finalFunction, tables, boolean, groupingAtts, attsToSelect, distinctAtts, distinctFunc, stats);
-
-    QueryPlan *queryplan = optimizer.OptimizedQueryPlan();
-
-    int ctr=0;
-    while(tables)
-    {
-      tables = tables->next;
-      ctr+=1;
-    }
-    cout<<"\nExpected number of tables for processing : 3\n";
-    cout<<"\nActual number of tables processed : "<<ctr;
-
-    ASSERT_EQ( ctr,3 );
-}
-
-
-TEST( QueryPlanTest, ParseTreeTest)
-{
+	FILE *cat_fp = fopen("location", "r");
+	fscanf(cat_fp, "%s", catalog_path);
     // FILE *cat_fp = fopen("location", "r");
     // fscanf(cat_fp, "%s", catalog_path);
-     Statistics *stats = new Statistics();
-     stats->initStatistics();
-     char *cnf = "SELECT SUM (n.n_regionkey) FROM nation AS n, region AS r WHERE (n.n_regionkey = r.r_regionkey) AND (n.n_name = 'UNITED STATES') GROUP BY n.n_regionkey";
+     // Statistics *stats = new Statistics();
+     // stats->initStatistics();
+     char *cnf = "CREATE TABLE customer_sample_table (c_custkey INTEGER, c_name STRING, c_address STRING, c_nationkey INTEGER, c_phone STRING, c_acctbal DOUBLE, c_mktsegment STRING, c_comment STRING) AS HEAP;";
 
    	yy_scan_string(cnf);
    	yyparse();
 
-    Optimizer optimizer(finalFunction, tables, boolean, groupingAtts, attsToSelect, distinctAtts, distinctFunc, stats);
+    // Optimizer optimizer(finalFunction, tables, boolean, groupingAtts, attsToSelect, distinctAtts, distinctFunc, stats);
+		//
+    // QueryPlan *queryplan = optimizer.OptimizedQueryPlan();
+		QueryPlan *queryplan = new QueryPlan();
+		int val = queryplan->ExecuteCreateTable(createTable);
 
-    QueryPlan *queryplan = optimizer.OptimizedQueryPlan();
-    QueryPlanNode *root = queryplan->root;
+		cout<<"\nCreated table "<<createTable->tableName<<endl;
 
-    int value = GetCount(root);
-    queryplan->PrintInOrder();
-    cout<<"\nExpected number of nodes in parse tree : 4";
-    cout<<"\nActual number of nodes in parse tree : "<<value<<endl;
+    // int value = GetCount(root);
+    // queryplan->PrintInOrder();
+    // cout<<"\nExpected number of nodes in parse tree : 4";
+    // cout<<"\nActual number of nodes in parse tree : "<<value<<endl;
+		char* fname = "/home/desikan/Code/C++/a5/customer_sample_table.bin";
 
-    ASSERT_EQ(value,4);
+    ASSERT_FALSE(access(fname, F_OK) == -1 );
 }
 
+TEST( QueryPlanTest, DropTable)
+{
 
 
+    char *cnf = "DROP TABLE customer_sample_table;";
+
+  	yy_scan_string(cnf);
+  	yyparse();
+
+		QueryPlan *queryplan = new QueryPlan();
+		int val = queryplan->ExecuteDropTable(dropTableName);
+
+			cout<<"\nDropped table "<<dropTableName<<endl;
+
+			char* fname = "/home/desikan/Code/C++/a5/customer_sample_table.bin";
+
+	    ASSERT_TRUE(access(fname, F_OK) == -1 );
+}
 
 int main(int argc, char **argv)
 {

@@ -162,7 +162,6 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		break;
 	}
 	case PROJECT:{
-		cout <<"Execute Project..."<<endl;
 		Project *project = new Project;
 		Pipe *pOutPipe = new Pipe(PIPE_SIZE);
 		this->pipes[node->outPipeId] = pOutPipe;
@@ -172,7 +171,6 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 	}
 
 	case SELECTFILE:{
-		cout <<"execute selectfrom file: " <<node->dbfilePath<<endl;
 		SelectFile *selectFile = new SelectFile();
 		Pipe *sfOutPipe = new Pipe(PIPE_SIZE);
 		this->pipes[node->outPipeId] = sfOutPipe;
@@ -183,7 +181,6 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		break;
 	}
 	case SUM:{
-		cout <<"Execute Sum..."<<endl;
 		Sum *sum = new Sum;
 		Pipe *sOutPipe = new Pipe(PIPE_SIZE);
 		this->pipes[node->outPipeId] = sOutPipe;
@@ -192,7 +189,6 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		break;
 	}
 	case GROUP_BY:{
-		cout <<"Execute Group BY..."<<endl;
 		GroupBy *groupBy = new GroupBy;
 		Pipe *gbOutPipe = new Pipe(PIPE_SIZE);
 		this->pipes[node->outPipeId] = gbOutPipe;
@@ -202,7 +198,6 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		break;
 	}
 	case JOIN:{
-		cout <<"Execute Join..."<<endl;
 		Join *join = new Join;
 		Pipe *jOutPipe = new Pipe(PIPE_SIZE);
 		this->pipes[node->outPipeId] = jOutPipe;
@@ -212,7 +207,7 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		break;
 	}
 	case WRITEOUT:{
-		cout <<"Execute writeout..."<<endl;
+		cout <<"Printing Query Results...\n\n"<<endl;
 		WriteOut *wo = new WriteOut;
 		Pipe *wlPipe = this->pipes[node->lPipeId];
 		wo->Run(*wlPipe, node->outFile, *(node->outputSchema));
@@ -220,7 +215,6 @@ void QueryPlan::ExecuteNode(QueryPlanNode *node) {
 		break;
 	}
 	case DISTINCT:{
-		cout <<"Execute Distinct...."<<endl;
 		DuplicateRemoval *dr = new DuplicateRemoval;
 		Pipe *drOutPipe = new Pipe(PIPE_SIZE);
 		this->pipes[node->outPipeId] = drOutPipe;
@@ -334,6 +328,9 @@ int QueryPlan::ExecuteDropTable(char *dropTable) {
 		char dbpath[100];
 		sprintf(dbpath, "%s%s.bin", dbfile_dir, dropTable);
 		remove(dbpath);
+		sprintf(dbpath, "%s.meta", dbpath);
+		remove(dbpath);
 		sprintf(dbpath, "%s.header", dbpath);
 		remove(dbpath);
+		return 1;
 }

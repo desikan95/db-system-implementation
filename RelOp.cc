@@ -124,9 +124,7 @@ void WriteOut :: StartOperationWriteOut(){
 	while(inPipe->Remove(&temRecord))
   {
   //  temRecord.Print(schema);
-  //  cout<<"\nWriting to a file dude\n";
-		temRecord.WriteToFile(outfile, schema);			//Writing results out to file
-
+		  temRecord.WriteToFile(outfile, schema);			//Writing results out to file
   }
   fclose(outfile);
 	inPipe->ShutDown();
